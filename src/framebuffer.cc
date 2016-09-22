@@ -495,7 +495,7 @@ int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos)
     }
     fseek(f, 0, SEEK_END);
     size = (int) ftell(f);
-    buf = malloc(size);
+    buf = (char *)malloc(size);
     fseek(f, 0, SEEK_SET);
     size = (int) fread(buf, 1, size, f);
     fclose(f);

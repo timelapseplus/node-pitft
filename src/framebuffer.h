@@ -70,7 +70,7 @@ class FrameBuffer : public Nan::ObjectWrap {
         bool drawToBuffer;
 };
 
-int write_fb_jpeg(char *jpegFile, uint8_t xPos, uint8_t yPos);
+int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos);
 int open_raw_fb();
 int close_raw_fb();
 
