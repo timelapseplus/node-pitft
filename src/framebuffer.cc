@@ -435,8 +435,6 @@ long int screensize = 0;
 
 int open_raw_fb()
 {
-    int xMax = 0, yMax = 0;
-
     // Open the file for reading and writing
     fbfd = open("/dev/fb0", O_RDWR);
     if (fbfd == -1) {
@@ -481,7 +479,7 @@ int close_raw_fb()
     return 0;
 }
 
-int write_fb_jpeg(char *jpegFile, uint8_t xPos, uint8_t yPos)
+int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos)
 {
     int size;
     char *buf;
@@ -511,8 +509,6 @@ int write_fb_jpeg(char *jpegFile, uint8_t xPos, uint8_t yPos)
     uint8_t *img = njGetImage();
     uint16_t jw = njGetWidth();
     uint16_t jh = njGetHeight();
-    uint16_t js = njGetImageSize();
-    uint16_t jx, jy;
     uint8_t ox, oy;
 
     int w = vinfo.xres;
