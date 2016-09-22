@@ -11,6 +11,13 @@
 #include <sys/mman.h>
 #include <cairo/cairo.h>
 
+#include <sys/types.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+
+#include "lib_jpeg.h"
+
 #include <v8.h>
 #include <node.h>
 #include <nan.h>
@@ -61,5 +68,9 @@ class FrameBuffer : public Nan::ObjectWrap {
 
         bool drawToBuffer;
 };
+
+int write_fb_jpeg(char *jpegFile, uint8_t xPos, uint8_t yPos);
+int open_raw_fb();
+int close_raw_fb();
 
 #endif

@@ -6,7 +6,7 @@
         "<!(node -e \"require('nan')\")",
         "<!@(pkg-config cairo --cflags-only-I | sed s/-I//g)"
       ],
-      "sources": [ "src/pitft.cc", "src/framebuffer.cc" ],
+      "sources": [ "src/pitft.cc", "src/framebuffer.cc", "src/lib_jpeg.c" ],
       "conditions": [
         ['OS=="linux"', {
           "libraries": [
