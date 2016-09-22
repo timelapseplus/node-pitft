@@ -529,8 +529,8 @@ int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos)
             int b = img[i + 2]>>3;
             int g = img[i + 1]>>2;
             int r = img[i + 0]>>3;
-            unsigned short int t = r<<12 | g << 6 | b;
-            //16 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01
+            unsigned short int t = r<<11 | g << 5 | b;
+            // 15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
             *((unsigned short int*)(fbp + location)) = t;
         }
     }
