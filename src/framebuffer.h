@@ -16,7 +16,9 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+extern "C" {
 #include "lib_jpeg.h"
+}
 
 #include <v8.h>
 #include <node.h>
