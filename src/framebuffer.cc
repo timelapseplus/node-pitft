@@ -33,6 +33,8 @@ void FrameBuffer::Init() {
       Nan::New<FunctionTemplate>(Font));
     ctor->PrototypeTemplate()->Set(Nan::New("text").ToLocalChecked(),
       Nan::New<FunctionTemplate>(Text));
+    ctor->PrototypeTemplate()->Set(Nan::New("textSize").ToLocalChecked(),
+      Nan::New<FunctionTemplate>(TextSize));
     ctor->PrototypeTemplate()->Set(Nan::New("png").ToLocalChecked(),
       Nan::New<FunctionTemplate>(ImagePNG));
     ctor->PrototypeTemplate()->Set(Nan::New("jpeg").ToLocalChecked(),
@@ -298,6 +300,29 @@ NAN_METHOD(FrameBuffer::Text) {
     return;
 }
 
+NAN_METHOD(FrameBuffer::TextSize) {
+    Nan::HandleScope scope;
+
+    v8::String::Utf8Value text(info[0]->ToString());
+    std::string _text = std::string(*text);
+
+    FrameBuffer *obj = Nan::ObjectWrap::Unwrap<FrameBuffer>(info.Holder());
+
+    cairo_t *cr = getDrawingContext(obj);
+
+    cairo_translate(cr, 0, 0);
+
+    cairo_text_extents_t extents;
+    cairo_text_extents(cr, _text.c_str(), &extents);
+
+    Local<Object> sizeObject = Nan::New<Object>();
+
+    sizeObject->Set(Nan::New<String>("width").ToLocalChecked(), Nan::New<Number>(extents.width));
+    sizeObject->Set(Nan::New<String>("height").ToLocalChecked(), Nan::New<Number>(extents.height));
+
+    info.GetReturnValue().Set(sizeObject);
+}
+
 NAN_METHOD(FrameBuffer::ImagePNG) {
     Nan::HandleScope scope;
 
@@ -439,20 +464,20 @@ int open_raw_fb()
     fbfd = open("/dev/fb0", O_RDWR);
     if (fbfd == -1) {
         perror("Error: cannot open framebuffer device");
-        exit(1);
+        return 1;
     }
     printf("The framebuffer device was opened successfully.\n");
 
     // Get fixed screen information
     if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo) == -1) {
         perror("Error reading fixed information");
-        exit(2);
+        return 2;
     }
 
     // Get variable screen information
     if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo) == -1) {
         perror("Error reading variable information");
-        exit(3);
+        return 3;
     }
 
     printf("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
@@ -464,7 +489,7 @@ int open_raw_fb()
     fbp = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
     if ((int)fbp == -1) {
         perror("Error: failed to map framebuffer device to memory");
-        exit(4);
+        return 4;
     }
     printf("The framebuffer device was mapped to memory successfully.\n");
 
@@ -486,7 +511,9 @@ int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos)
     FILE *f;
     long int location = 0;
 
-    if(!fbp) open_raw_fb();
+    int ret = 0;
+    if(!fbp) ret = open_raw_fb();
+    if(ret) return ret;
 
     f = fopen(jpegFile, "rb");
     if (!f) {
@@ -503,7 +530,7 @@ int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos)
     njInit();
     if (njDecode(buf, size)) {
         printf("Error decoding the input file.\n");
-        return 1;
+        return 2;
     }
 
     uint8_t *img = njGetImage();

@@ -43,6 +43,7 @@ class FrameBuffer : public Nan::ObjectWrap {
         static NAN_METHOD(Circle);
         static NAN_METHOD(Font);
         static NAN_METHOD(Text);
+        static NAN_METHOD(TextSize);
         static NAN_METHOD(ImagePNG);
         static NAN_METHOD(ImageJPEG);
         static cairo_t* getDrawingContext(FrameBuffer *obj);
