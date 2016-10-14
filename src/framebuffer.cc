@@ -244,12 +244,12 @@ NAN_METHOD(FrameBuffer::Font) {
 
     FrameBuffer *obj = Nan::ObjectWrap::Unwrap<FrameBuffer>(info.Holder());
 
-    v8::String::Utf8Value fontName(info[0]->ToString());
-    std::string _fontName = std::string(*fontName);
+    //v8::String::Utf8Value fontName(info[0]->ToString());
+    //std::string _fontName = std::string(*fontName);
 
-    obj->fontName = _fontName.c_str();
-    obj->fontSize = info[1]->IsUndefined() ? 12 : info[1]->NumberValue();
-    obj->fontBold = info[2]->IsUndefined() ? false : info[2]->BooleanValue();
+    //obj->fontName = _fontName.c_str();
+    obj->fontSize = info[0]->IsUndefined() ? 12 : info[0]->NumberValue();
+    obj->fontMono = info[1]->IsUndefined() ? false : info[1]->BooleanValue();
 
     return;
 }
@@ -263,43 +263,19 @@ NAN_METHOD(FrameBuffer::Text) {
     v8::String::Utf8Value text(info[2]->ToString());
     std::string _text = std::string(*text);
 
-    bool textCentered = info[3]->IsUndefined() ? false : info[3]->BooleanValue();
-    double textRotation = info[4]->IsUndefined() ? 0 : info[4]->NumberValue();
-
     FrameBuffer *obj = Nan::ObjectWrap::Unwrap<FrameBuffer>(info.Holder());
 
     cairo_t *cr = getDrawingContext(obj);
-
-//    cairo_set_source_rgb(cr, obj->r, obj->g, obj->b);
-//
-//    if (obj->fontBold) {
-//        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-//    } else {
-//        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-//    }
-//
-//    cairo_set_font_size(cr, obj->fontSize);
-//
-//    cairo_translate(cr, x, y);
-//
-//    if (textRotation != 0) {
-//        cairo_rotate(cr, textRotation / (180.0 / 3.141592654));
-//    }
-//
-//    if (textCentered) {
-//        cairo_text_extents_t extents;
-//        cairo_text_extents(cr, _text.c_str(), &extents);
-//
-//        cairo_move_to(cr, -extents.width/2, extents.height/2);
-//    }
-//
-//    cairo_show_text(cr, _text.c_str());
 
     PangoLayout *layout;
     PangoFontDescription *font_description;
 
     font_description = pango_font_description_new ();
-    pango_font_description_set_family (font_description, "Noto Sans");//obj->fontName);
+    if (obj->fontMono) {
+        pango_font_description_set_family (font_description, "Noto Mono");
+    } else {    
+        pango_font_description_set_family (font_description, "Noto Sans");
+    }
     if (obj->fontBold) {
         pango_font_description_set_weight (font_description, PANGO_WEIGHT_BOLD);
     } else {    
@@ -315,41 +291,67 @@ NAN_METHOD(FrameBuffer::Text) {
 
     pango_cairo_show_layout_line (cr, pango_layout_get_line (layout, 0));
 
+    int width, height;
+    pango_layout_get_pixel_size (layout, &width, &height);
+
     g_object_unref (layout);
     pango_font_description_free (font_description);
 
     cairo_destroy(cr);
 
-    return;
+    Local<Object> sizeObject = Nan::New<Object>();
+
+    sizeObject->Set(Nan::New<String>("width").ToLocalChecked(), Nan::New<Number>(width));
+    sizeObject->Set(Nan::New<String>("height").ToLocalChecked(), Nan::New<Number>(height));
+
+    info.GetReturnValue().Set(sizeObject);
 }
 
 NAN_METHOD(FrameBuffer::TextSize) {
     Nan::HandleScope scope;
 
-    v8::String::Utf8Value text(info[0]->ToString());
+    double x = (info[0]->NumberValue());
+    double y = (info[1]->NumberValue());
+
+    v8::String::Utf8Value text(info[2]->ToString());
     std::string _text = std::string(*text);
 
     FrameBuffer *obj = Nan::ObjectWrap::Unwrap<FrameBuffer>(info.Holder());
 
     cairo_t *cr = getDrawingContext(obj);
 
-    if (obj->fontBold) {
-        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-    } else {
-        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    PangoLayout *layout;
+    PangoFontDescription *font_description;
+
+    font_description = pango_font_description_new ();
+    if (obj->fontMono) {
+        pango_font_description_set_family (font_description, "Noto Mono");
+    } else {    
+        pango_font_description_set_family (font_description, "Noto Sans");
     }
+    if (obj->fontBold) {
+        pango_font_description_set_weight (font_description, PANGO_WEIGHT_BOLD);
+    } else {    
+        pango_font_description_set_weight (font_description, PANGO_WEIGHT_NORMAL);
+    }
+    pango_font_description_set_absolute_size (font_description, obj->fontSize * PANGO_SCALE);
+    layout = pango_cairo_create_layout (cr);
+    pango_layout_set_font_description (layout, font_description);
+    pango_layout_set_text (layout, _text.c_str(), -1);
 
-    cairo_set_font_size(cr, obj->fontSize);
-    cairo_translate(cr, 0, 0);
 
-    cairo_text_extents_t extents;
-    cairo_text_extents(cr, _text.c_str(), &extents);
+    int width, height;
+    pango_layout_get_pixel_size (layout, &width, &height);
+
+    g_object_unref (layout);
+    pango_font_description_free (font_description);
+
+    cairo_destroy(cr);
 
     Local<Object> sizeObject = Nan::New<Object>();
 
-    sizeObject->Set(Nan::New<String>("width").ToLocalChecked(), Nan::New<Number>(extents.width));
-    sizeObject->Set(Nan::New<String>("height").ToLocalChecked(), Nan::New<Number>(extents.height));
-    sizeObject->Set(Nan::New<String>("x_advance").ToLocalChecked(), Nan::New<Number>(extents.x_advance));
+    sizeObject->Set(Nan::New<String>("width").ToLocalChecked(), Nan::New<Number>(width));
+    sizeObject->Set(Nan::New<String>("height").ToLocalChecked(), Nan::New<Number>(height));
 
     info.GetReturnValue().Set(sizeObject);
 }
