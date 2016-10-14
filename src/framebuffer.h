@@ -10,6 +10,7 @@
 #include <linux/fb.h>
 #include <sys/mman.h>
 #include <cairo/cairo.h>
+#include <pango/pangocairo.h>
 
 #include <sys/types.h>
 #include <stdint.h>

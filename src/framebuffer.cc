@@ -270,30 +270,53 @@ NAN_METHOD(FrameBuffer::Text) {
 
     cairo_t *cr = getDrawingContext(obj);
 
-    cairo_set_source_rgb(cr, obj->r, obj->g, obj->b);
+//    cairo_set_source_rgb(cr, obj->r, obj->g, obj->b);
+//
+//    if (obj->fontBold) {
+//        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+//    } else {
+//        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+//    }
+//
+//    cairo_set_font_size(cr, obj->fontSize);
+//
+//    cairo_translate(cr, x, y);
+//
+//    if (textRotation != 0) {
+//        cairo_rotate(cr, textRotation / (180.0 / 3.141592654));
+//    }
+//
+//    if (textCentered) {
+//        cairo_text_extents_t extents;
+//        cairo_text_extents(cr, _text.c_str(), &extents);
+//
+//        cairo_move_to(cr, -extents.width/2, extents.height/2);
+//    }
+//
+//    cairo_show_text(cr, _text.c_str());
 
+    PangoLayout *layout;
+    PangoFontDescription *font_description;
+
+    font_description = pango_font_description_new ();
+    pango_font_description_set_family (font_description, obj->fontName);
     if (obj->fontBold) {
-        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-    } else {
-        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        pango_font_description_set_weight (font_description, PANGO_WEIGHT_BOLD);
+    } else {    
+        pango_font_description_set_weight (font_description, PANGO_WEIGHT_NORMAL);
     }
+    pango_font_description_set_absolute_size (font_description, obj->fontSize * PANGO_SCALE);
+    layout = pango_cairo_create_layout (cr);
+    pango_layout_set_font_description (layout, font_description);
+    pango_layout_set_text (layout, _text.c_str(), -1);
 
-    cairo_set_font_size(cr, obj->fontSize);
-
+    cairo_set_source_rgb(cr, obj->r, obj->g, obj->b);
     cairo_translate(cr, x, y);
 
-    if (textRotation != 0) {
-        cairo_rotate(cr, textRotation / (180.0 / 3.141592654));
-    }
+    pango_cairo_show_layout_line (cr, pango_layout_get_line (layout, 0));
 
-    if (textCentered) {
-        cairo_text_extents_t extents;
-        cairo_text_extents(cr, _text.c_str(), &extents);
-
-        cairo_move_to(cr, -extents.width/2, extents.height/2);
-    }
-
-    cairo_show_text(cr, _text.c_str());
+    g_object_unref (layout);
+    pango_font_description_free (font_description);
 
     cairo_destroy(cr);
 
