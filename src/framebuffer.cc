@@ -249,7 +249,8 @@ NAN_METHOD(FrameBuffer::Font) {
 
     //obj->fontName = _fontName.c_str();
     obj->fontSize = info[0]->IsUndefined() ? 12 : info[0]->NumberValue();
-    obj->fontMono = info[1]->IsUndefined() ? false : info[1]->BooleanValue();
+    obj->fontBold = info[1]->IsUndefined() ? false : info[1]->BooleanValue();
+    obj->fontMono = info[2]->IsUndefined() ? false : info[2]->BooleanValue();
 
     return;
 }
