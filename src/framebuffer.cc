@@ -310,6 +310,13 @@ NAN_METHOD(FrameBuffer::TextSize) {
 
     cairo_t *cr = getDrawingContext(obj);
 
+    if (obj->fontBold) {
+        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    } else {
+        cairo_select_font_face(cr, obj->fontName, CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    }
+
+    cairo_set_font_size(cr, obj->fontSize);
     cairo_translate(cr, 0, 0);
 
     cairo_text_extents_t extents;
