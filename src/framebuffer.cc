@@ -310,10 +310,7 @@ NAN_METHOD(FrameBuffer::Text) {
 NAN_METHOD(FrameBuffer::TextSize) {
     Nan::HandleScope scope;
 
-    double x = (info[0]->NumberValue());
-    double y = (info[1]->NumberValue());
-
-    v8::String::Utf8Value text(info[2]->ToString());
+    v8::String::Utf8Value text(info[0]->ToString());
     std::string _text = std::string(*text);
 
     FrameBuffer *obj = Nan::ObjectWrap::Unwrap<FrameBuffer>(info.Holder());
