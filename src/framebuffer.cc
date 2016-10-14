@@ -299,7 +299,7 @@ NAN_METHOD(FrameBuffer::Text) {
     PangoFontDescription *font_description;
 
     font_description = pango_font_description_new ();
-    pango_font_description_set_family (font_description, obj->fontName);
+    pango_font_description_set_family (font_description, "Noto Sans");//obj->fontName);
     if (obj->fontBold) {
         pango_font_description_set_weight (font_description, PANGO_WEIGHT_BOLD);
     } else {    
