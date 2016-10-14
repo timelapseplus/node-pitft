@@ -319,6 +319,7 @@ NAN_METHOD(FrameBuffer::TextSize) {
 
     sizeObject->Set(Nan::New<String>("width").ToLocalChecked(), Nan::New<Number>(extents.width));
     sizeObject->Set(Nan::New<String>("height").ToLocalChecked(), Nan::New<Number>(extents.height));
+    sizeObject->Set(Nan::New<String>("x_advance").ToLocalChecked(), Nan::New<Number>(extents.x_advance));
 
     info.GetReturnValue().Set(sizeObject);
 }
