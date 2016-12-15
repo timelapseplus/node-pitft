@@ -395,7 +395,7 @@ NAN_METHOD(FrameBuffer::ImageJPEG) {
     std::string _path = std::string(*path);
 
     FrameBuffer *obj = Nan::ObjectWrap::Unwrap<FrameBuffer>(info.Holder());
-    uint8_t *surface_data = cairo_image_surface_get_data(obj);
+    uint8_t *surface_data = cairo_image_surface_get_data(obj->bufferSurface);
 
     write_fb_jpeg_to_surface(surface_data, _path.c_str(), (uint8_t)x, (uint8_t)y, 160, 128);
 
@@ -537,7 +537,7 @@ int open_raw_fb()
 
     // Map the device to memory
     fbp2 = (char *)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
-    if ((int)fbp == -1) {
+    if ((int)fbp2 == -1) {
         perror("Error: failed to map framebuffer device to memory");
         return 4;
     }
@@ -550,7 +550,7 @@ int close_raw_fb()
 {
     munmap(fbp2, screensize);
     close(fbfd);
-    fbp = 0;
+    fbp2 = 0;
     return 0;
 }
 
@@ -670,7 +670,7 @@ int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, int x
             int g = img[i + 1]>>2;
             int r = img[i + 0]>>3;
             uint16_t t = r<<11 | g << 5 | b;
-            surface_pixels[ox+x_pos][oy+y_pos] = t;
+            surface_pixels[ox+x_pos + (oy+y_pos) * surface_w] = t;
             //*((uint16_t*)(surface_data + location)) = t;
         }
     }
