@@ -616,7 +616,7 @@ int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos)
     return 0;
 }
 
-int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, uint8_t x_pos, uint8_t y_pos, int surface_w, int surface_h)
+int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, int x_pos, int y_pos, int surface_w, int surface_h)
 {
     int size;
     char *buf;
@@ -647,7 +647,7 @@ int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, uint8
     uint8_t *img = njGetImage();
     uint16_t jw = njGetWidth();
     uint16_t jh = njGetHeight();
-    uint8_t ox, oy;
+    int ox, oy;
 
     uint16_t *surface_pixels = (uint16_t*)surface_data;
 
@@ -670,7 +670,7 @@ int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, uint8
             int g = img[i + 1]>>2;
             int r = img[i + 0]>>3;
             uint16_t t = r<<11 | g << 5 | b;
-            surface_pixels[(int)(ox+x_pos)][(int)(oy+y_pos)] = t;
+            surface_pixels[ox+x_pos][oy+y_pos] = t;
             //*((uint16_t*)(surface_data + location)) = t;
         }
     }
