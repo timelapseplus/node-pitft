@@ -76,7 +76,7 @@ class FrameBuffer : public Nan::ObjectWrap {
         bool drawToBuffer;
 };
 
-int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, uint8_t x_pos, uint8_t y_pos, int surface_w, int surface_h);
+int write_fb_jpeg_to_surface(uint8_t *surface_data, const char *jpeg_file, int x_pos, int y_pos, int surface_w, int surface_h);
 int write_fb_jpeg(const char *jpegFile, uint8_t xPos, uint8_t yPos);
 int open_raw_fb();
 int close_raw_fb();
